@@ -1,0 +1,9 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="PowershellModules/configuration.xsd" componentName="elasticsearch">
+  <services>
+    <WindowsService path=".\bin\elasticsearch.bat" serviceContainer="nssm">
+      <name>ElasticSearch</name>
+      <displayName>ElasticSearch</displayName>
+    </WindowsService>
+  </services>
+</configuration>

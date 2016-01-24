@@ -1,0 +1,1073 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="configuration">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="sites" type="sites" minOccurs="0" maxOccurs="1">
+          <xs:unique name="UniqueAppPoolNames">
+            <xs:selector xpath=".//appPool" />
+            <xs:field xpath="@name" />
+          </xs:unique>
+        </xs:element>
+        <xs:element name="services" type="services" minOccurs="0" maxOccurs="1">
+          <xs:unique name="UniqueServiceName">
+            <xs:selector xpath="./*" />
+            <xs:field xpath="name" />
+          </xs:unique>
+        </xs:element>
+        <xs:element name="certificates" type="certificates" minOccurs="0" maxOccurs="1">
+          <xs:unique name="UniqueCertificateName">
+            <xs:selector xpath="./*" />
+            <xs:field xpath="name" />
+          </xs:unique>
+        </xs:element>
+        <xs:element name="filePermissions" type="filePermissions" minOccurs="0" maxOccurs="1">
+          <xs:unique name="UniqueFilePermissionName">
+            <xs:selector xpath="./*" />
+            <xs:field xpath="name" />
+          </xs:unique>
+        </xs:element>
+        <xs:element name="serviceBuses" type="serviceBuses" minOccurs="0" maxOccurs="1">
+          <xs:unique name="UniqueServiceBuses">
+            <xs:selector xpath="./*" />
+            <xs:field xpath="connectionString" />
+          </xs:unique>
+        </xs:element>
+        <xs:element name="prtgMonitors" type="prtgMonitors" minOccurs="0" maxOccurs="1">
+          <xs:unique name="UniquePrtgMonitors">
+            <xs:selector xpath="./*" />
+            <xs:field xpath="PrtgUrl" />
+          </xs:unique>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="defaultHost" default="localhost" />
+      <xs:attribute name="componentName" use="required">
+        <xs:annotation>
+          <xs:documentation>componentName is a destination folder name for the application</xs:documentation>
+        </xs:annotation>
+        <xs:simpleType>
+          <xs:restriction base="xs:string">
+            <xs:pattern value=".+" />
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="sites">
+    <xs:sequence>
+      <xs:element name="site" type="site" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+
+  <xs:complexType name="filePermissions">
+    <xs:sequence>
+      <xs:element name="filePermission" type="filePermission" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="serviceBuses">
+    <xs:sequence>
+      <xs:element name="serviceBus" type="serviceBus" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="prtgMonitors">
+    <xs:sequence>
+      <xs:element name="prtgMonitor" type="prtgMonitor" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="prtgMonitor">
+    <xs:sequence>
+      <xs:element name="sensors" type="sensors" minOccurs="0" maxOccurs="1">
+        <xs:unique name="UniqueSensorsName">
+          <xs:selector xpath="./*" />
+          <xs:field xpath="SensorName" />
+        </xs:unique>
+      </xs:element>
+      <xs:element name="serviceBusSubscribeSensors" type="serviceBusSubscribeSensors" minOccurs="0" maxOccurs="1">
+        <xs:unique name="UniqueSubscribeSensorsName">
+          <xs:selector xpath="./*" />
+          <xs:field xpath="SensorName" />
+        </xs:unique>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="url"  use="required"  />
+    <xs:attribute name="login"  use="required"  />
+    <xs:attribute name="passwordHash"  use="required"  >
+      <xs:annotation>
+        <xs:documentation>The passhash for a user account is shown on the user account settings page .</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="sensors">
+    <xs:sequence>
+      <xs:element name="sensor" type="sensor" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="sensor">
+    <xs:attribute name="baseSensorId"  use="required"  >
+      <xs:annotation>
+        <xs:documentation>The id of the sensor to copy as a basis for this new sensor as per PRTG api limitations</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sensorDeviceId"  use="required" >
+      <xs:annotation>
+        <xs:documentation>Click on the device in PRTG and copy the id value from the querystring</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sensorName"  use="required" />
+    <xs:attribute name="sensorUrl"  use="required"  />
+    <xs:attribute name="deleteOnUninstall" default="false" type="xs:boolean"  />
+    <xs:attribute name="sensorTimeout"  use="optional" default="0" />
+  </xs:complexType>
+
+  <xs:complexType name="serviceBusSubscribeSensors">
+    <xs:sequence>
+      <xs:element name="serviceBusSubscribeSensor" type="serviceBusSubscribeSensor" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="serviceBusSubscribeSensor">
+    <xs:attribute name="connectionString"  use="required"  >
+      <xs:annotation>
+        <xs:documentation>The servicebus connection string</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="subscriptionTopic"  use="required"  >
+      <xs:annotation>
+        <xs:documentation>The topic of this subscription</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="subscriptionName"  use="required"  >
+      <xs:annotation>
+        <xs:documentation>The name of this subscription</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sensorName"  use="required" />
+    <xs:attribute name="baseSensorId"  use="required"  >
+      <xs:annotation>
+        <xs:documentation>The id of the sensor to copy as a basis for this new sensor as per PRTG api limitations</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="sensorDeviceId"  use="required" >
+      <xs:annotation>
+        <xs:documentation>Click on the device in PRTG and copy the id value from the querystring</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="deleteOnUninstall" default="false" type="xs:boolean"  />
+  </xs:complexType>
+
+  <xs:complexType name="certificates">
+    <xs:sequence>
+      <xs:element name="certificate" type="certificate" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="services">
+    <xs:sequence>
+      <xs:element name="NServiceBus" type="NServiceBus" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="WindowsService" type="WindowsService" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="TopshelfService" type="TopshelfService" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="JavaService" type="JavaService" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="filePermission">
+    <xs:sequence>
+      <xs:element name="fileSystemRights" type="fileSystemRights" minOccurs="0" maxOccurs="1">
+        <xs:unique name="UniqueFileSystemRightUserName">
+          <xs:selector xpath="./*" />
+          <xs:field xpath="username" />
+        </xs:unique>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" use="required" />
+    <xs:attribute name="path" use="required" />
+    <xs:attribute name="removeOnUninstall" default="false" type="xs:boolean" />
+  </xs:complexType>
+
+  <xs:complexType name="serviceBus">
+    <xs:sequence>
+      <xs:element name="queues" type="queues" minOccurs="0" maxOccurs="1">
+        <xs:unique name="UniqueServiceBusQueueName">
+          <xs:selector xpath="./*" />
+          <xs:field xpath="name" />
+        </xs:unique>
+      </xs:element>
+      <xs:element name="topics" type="topics" minOccurs="0" maxOccurs="1">
+        <xs:unique name="UniqueServiceBusTopicName">
+          <xs:selector xpath="./*" />
+          <xs:field xpath="name" />
+        </xs:unique>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="connectionString" use="required" />
+  </xs:complexType>
+
+  <xs:complexType name="certificate">
+    <xs:sequence>
+      <xs:element name="content" type="xs:string" minOccurs="1" maxOccurs="1" nillable="false"/>
+      <xs:element name="certificatePermissions" type="certificatePermissions" minOccurs="0" maxOccurs="1">
+        <xs:unique name="UniqueCertificatePermissionUserName">
+          <xs:selector xpath="./*" />
+          <xs:field xpath="username" />
+        </xs:unique>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" use="required" />
+    <xs:attribute name="password" default="" />
+    <xs:attribute name="Exportable" default="true" type="xs:boolean" />
+    <xs:attribute name="PersistKeySet" default="true" type="xs:boolean" />
+    <xs:attribute name="MachineKeySet" default="true" type="xs:boolean" />
+    <xs:attribute name="removeOnUninstall" default="false" type="xs:boolean" />
+    <xs:attribute name="storeLocation" type="storeLocation" default="LocalMachine" />
+    <xs:attribute name="certificateStore" type="certificateStore" default="My" />
+  </xs:complexType>
+
+  <xs:complexType name="fileSystemRights">
+    <xs:sequence>
+      <xs:element name="fileSystemRight" type="fileSystemRight" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="topics">
+    <xs:sequence>
+      <xs:element name="topic" type="topic" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="queues">
+    <xs:sequence>
+      <xs:element name="queue" type="queue" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="queue">
+    <xs:sequence>
+      <xs:element name="authorizations" type="authorizations" minOccurs="0" maxOccurs="1">
+        <xs:unique name="UniqueServiceBusQueueAuthorizationName">
+          <xs:selector xpath="./*" />
+          <xs:field xpath="name" />
+        </xs:unique>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" use="required" />
+    <xs:attribute name="autoDeleteOnIdle" type="xs:duration" default="P106751DT2H48M5.477S">
+      <xs:annotation>
+        <xs:documentation>The idle interval after which the queue is automatically deleted. The minimum duration is 5 minutes.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="defaultMessageTimeToLive" type="xs:duration" default="P106751DT2H48M5.477S">
+      <xs:annotation>
+        <xs:documentation>
+          The default message time to live value. This is the duration after which the message expires, starting from when the message is sent to Service Bus.
+          This is the default value used when TimeToLive is not set on a message itself. Messages older than their TimeToLive value will expire and no longer be retained in the message store.
+          Subscribers will be unable to receive expired messages.
+
+          A message can have a lower TimeToLive value than that specified here, but by default TimeToLive is set to MaxValue. Therefore, this property becomes the default time to live
+          value applied to messages.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="duplicateDetectionHistoryTimeWindow" type="xs:duration" default="PT10M">
+      <xs:annotation>
+        <xs:documentation>The TimeSpan structure that defines the duration of the duplicate detection history. The default value is 10 minutes.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="enableDeadLetteringOnMessageExpiration" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>Indicates whether this queue has dead letter support when a message expires.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="enableBatchedOperations" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>Indicates whether server-side batched operations are enabled.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="enableExpress" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>Whether to enable the queue to be partitioned across multiple message brokers. An express queue holds a message in memory temporarily before writing it to persistent storage.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="enablePartitioning" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>Indicates whether the queue to be partitioned across multiple message brokers is enabled.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="forwardDeadLetteredMessagesTo" type="xs:string" default="">
+      <xs:annotation>
+        <xs:documentation>The path to the recipient to which the dead lettered message is forwarded.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="forwardTo" type="xs:string" default="">
+      <xs:annotation>
+        <xs:documentation>The path to the recipient to which the message is forwarded.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="isAnonymousAccessible" type="xs:boolean" default="false" >
+      <xs:annotation>
+        <xs:documentation>Indicates whether the message is anonymous accessible.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="lockDuration" type="xs:duration" default="PT1M" >
+      <xs:annotation>
+        <xs:documentation>
+          The duration of a peek lock; that is, the amount of time that the message is locked for other receivers.
+          The maximum value for LockDuration is 5 minutes; the default value is 1 minute.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="maxDeliveryCount" type="xs:int" default="10">
+      <xs:annotation>
+        <xs:documentation>The maximum delivery count. A message is automatically deadlettered after this number of deliveries.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="maxSizeInMegabytes" type="queueMaxSizeInMegaBytes" default="1024">
+      <xs:annotation>
+        <xs:documentation>The maximum size of the queue in megabytes, which is the size of memory allocated for the queue.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="requiresDuplicateDetection" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>The value indicating if this queue requires duplicate detection.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="requiresSession" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>Value that indicates whether the queue supports the concept of session.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="supportOrdering" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>Value that indicates whether the queue supports ordering.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:simpleType name="queueMaxSizeInMegaBytes">
+    <xs:restriction base="xs:long">
+      <xs:enumeration value="1024"/>
+      <xs:enumeration value="2048"/>
+      <xs:enumeration value="3072"/>
+      <xs:enumeration value="4096"/>
+      <xs:enumeration value="5120"/>
+      <xs:enumeration value="6144"/>
+      <xs:enumeration value="7168"/>
+      <xs:enumeration value="8192"/>
+      <xs:enumeration value="9216"/>
+      <xs:enumeration value="10240"/>
+      <xs:enumeration value="8796093022207"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="topic">
+    <xs:sequence>
+      <xs:element name="authorizations" type="authorizations" minOccurs="0" maxOccurs="1">
+        <xs:unique name="UniqueServiceBusTopicAuthorizationName">
+          <xs:selector xpath="./*" />
+          <xs:field xpath="name" />
+        </xs:unique>
+      </xs:element>
+      <xs:element name="subscriptions" type="subscriptions" minOccurs="0" maxOccurs="1">
+        <xs:unique name="UniqueServiceBusTopicSubscriptionName">
+          <xs:selector xpath="./*" />
+          <xs:field xpath="name" />
+        </xs:unique>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" use="required" />
+    <xs:attribute name="autoDeleteOnIdle" type="xs:duration" default="P106751DT2H48M5.477S">
+      <xs:annotation>
+        <xs:documentation>The TimeSpan idle interval after which the topic is automatically deleted. The minimum duration is 5 minutes.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="defaultMessageTimeToLive" type="xs:duration" default="P106751DT2H48M5.477S">
+      <xs:annotation>
+        <xs:documentation>
+          The default message time to live value for a topic. This is the duration after which the message expires, starting from when the message is sent to the Service Bus.
+          This is the default value used when TimeToLive is not set on a message itself.
+
+          Messages older than their TimeToLive value will expire and no longer be retained in the message store. Subscribers will be unable to receive expired messages.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="duplicateDetectionHistoryTimeWindow" type="xs:duration" default="PT10M">
+      <xs:annotation>
+        <xs:documentation>The TimeSpan structure that defines the duration of the duplicate detection history.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="enableBatchedOperations" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>A value that indicates whether server-side batched operations are enabled.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="enableExpress" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>A value that indicates whether Express Entities are enabled. An express topic holds a message in memory temporarily before writing it to persistent storage.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="enableFilteringMessagesBeforePublishing" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>Whether messages should be filtered before publishing.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="enablePartitioning" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>Whether to enable the topic to be partitioned across multiple message brokers. An express topic holds a message in memory temporarily before writing it to persistent storage.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="isAnonymousAccessible" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>Whether anonymous access is allowed.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="maxSizeInMegabytes" type="topicMaxSizeInMegaBytes" default="1024">
+      <xs:annotation>
+        <xs:documentation>The maximum size of the topic in megabytes, which is the size of memory allocated for the topic.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="requiresDuplicateDetection" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>The value that indicates whether a topic requires duplication detection.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="supportOrdering" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>Should topic support ordering method.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:simpleType name="topicMaxSizeInMegaBytes">
+    <xs:restriction base="xs:long">
+      <xs:enumeration value="1024"/>
+      <xs:enumeration value="2048"/>
+      <xs:enumeration value="3072"/>
+      <xs:enumeration value="4096"/>
+      <xs:enumeration value="5120"/>
+      <xs:enumeration value="6144"/>
+      <xs:enumeration value="7168"/>
+      <xs:enumeration value="8192"/>
+      <xs:enumeration value="9216"/>
+      <xs:enumeration value="10240"/>
+      <xs:enumeration value="8796093022207"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="authorizations">
+    <xs:sequence>
+      <xs:element name="authorization" type="authorization" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="authorization">
+    <xs:attribute name="name" use="required" />
+    <xs:attribute name="value" use="required" />
+    <xs:attribute name="manage" default="false" />
+    <xs:attribute name="send" default="false" />
+    <xs:attribute name="listen" default="false" />
+  </xs:complexType>
+
+  <xs:complexType name="subscriptions">
+    <xs:sequence>
+      <xs:element name="subscription" type="subscription" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="subscription">
+    <xs:sequence>
+      <xs:element name="rules" type="rules" minOccurs="0" maxOccurs="1">
+        <xs:unique name="UniqueServiceBusRuleName">
+          <xs:selector xpath="./*" />
+          <xs:field xpath="name" />
+        </xs:unique>
+      </xs:element>
+    </xs:sequence>
+    <xs:attribute name="name" use="required" />
+    <xs:attribute name="autoDeleteOnIdle" type="xs:duration" default="P106751DT2H48M5.477S">
+      <xs:annotation>
+        <xs:documentation>The TimeSpan idle interval after which the subscription is automatically deleted. The minimum duration is 5 minutes.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="defaultMessageTimeToLive" type="xs:duration" default="P106751DT2H48M5.477S">
+      <xs:annotation>
+        <xs:documentation>
+          The default message time to live value. This is the duration after which the message expires, starting from when the message is sent to the Service Bus.
+          This is the default value used when TimeToLive is not set on a message itself.
+
+          Messages older than their TimeToLive value will expire and no longer be retained in the message store. Subscribers will be unable to receive expired messages.
+          A message can have a lower TimeToLive value than that specified here, but by default TimeToLive is set to MaxValue. Therefore, this property becomes the default time to live value
+          applied to messages.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="enableBatchedOperations" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>Value that indicates whether the batched operations are enabled.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="enableDeadLetteringOnFilterEvaluationExceptions" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>The value that indicates if a subscription has dead letter support on Filter evaluation exceptions.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="enableDeadLetteringOnMessageExpiration" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>The value that indicates if a subscription has dead letter support when a message expires.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="forwardDeadLetteredMessagesTo" type="xs:string" default="">
+      <xs:annotation>
+        <xs:documentation>The path to the recipient to which the dead lettered messages are forwarded.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="forwardTo" type="xs:string" default="">
+      <xs:annotation>
+        <xs:documentation>The path to the recipient to which the message is forwarded.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="lockDuration" type="xs:duration" default="PT1M">
+      <xs:annotation>
+        <xs:documentation>The lock duration time span for the subscription.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="maxDeliveryCount" type="xs:int" default="10">
+      <xs:annotation>
+        <xs:documentation>The number of maximum deliveries.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="requiresSession" type="xs:boolean" default="false">
+      <xs:annotation>
+        <xs:documentation>The value indicating if a subscription supports the concept of session.</xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="rules">
+    <xs:sequence>
+      <xs:element name="rule" type="rule" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="rule">
+    <xs:attribute name="name" use="required" />
+    <xs:attribute name="filter" default="1=1" />
+    <xs:attribute name="action" />
+  </xs:complexType>
+
+  <xs:complexType name="certificatePermissions">
+    <xs:sequence>
+      <xs:element name="certificatePermission" type="certificatePermission" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="fileSystemRightAccessControlType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Allow" >
+        <xs:annotation>
+          <xs:documentation>
+            The AccessRule object is used to allow access to a secured object.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="Deny" >
+        <xs:annotation>
+          <xs:documentation>
+            The AccessRule object is used to deny access to a secured object.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="fileSystemRightPropagationType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="InheritOnly" >
+        <xs:annotation>
+          <xs:documentation>
+            Specifies that the ACE is propagated only to child objects. This includes both container and leaf child objects.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="None" >
+        <xs:annotation>
+          <xs:documentation>
+            Specifies that no inheritance flags are set.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="NoPropagateInherit" >
+        <xs:annotation>
+          <xs:documentation>
+            Specifies that the ACE is not propagated to child objects.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="fileSystemRight">
+    <xs:attribute name="username" use="required" >
+      <xs:annotation>
+        <xs:documentation>
+          The username or group to add permission for.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="accessControlType" default="Allow" type="fileSystemRightAccessControlType" />
+    <xs:attribute name="containerInherit" default="true" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          The ACE is inherited by child container objects.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="objectInherit" default="true" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          The ACE is inherited by child leaf objects.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="propagationType" default="None" type="fileSystemRightPropagationType" />
+    <xs:attribute name="appendData" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to append data to the end of a file.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="changePermissions" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to change the security and audit rules associated with a file or folder.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="createDirectories" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to create a folder.
+
+          This right requires the Synchronize value. Note that if you do not explicitly set the Synchronize value when creating a file or folder, the Synchronize value will be set automatically for you.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="createFiles" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to create a file.
+
+          This right requires the Synchronize value. Note that if you do not explicitly set the Synchronize value when creating a file or folder, the Synchronize value will be set automatically for you.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="delete" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to delete a folder or file.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="deleteSubdirectoriesAndFiles" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to delete a folder and any files contained within that folder.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="executeFile" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to run an application file.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="fullControl" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to exert full control over a folder or file, and to modify access control and audit rules. This value represents the right to do anything with a file and is the combination of all rights in this enumeration.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="listDirectory" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to read the contents of a directory.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="modify" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to read, write, list folder contents, delete folders and files, and run application files. This right includes the ReadAndExecute right, the Write right, and the Delete right.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="read" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to open and copy folders or files as read-only. This right includes the ReadData right, ReadExtendedAttributes right, ReadAttributes right, and ReadPermissions right.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="readAndExecute" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to open and copy folders or files as read-only, and to run application files. This right includes the Read right and the ExecuteFile right.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="readAttributes" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to open and copy file system attributes from a folder or file. For example, this value specifies the right to view the file creation or modified date. This does not include the right to read data, extended file system attributes, or access and audit rules.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="readData" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to open and copy a file or folder. This does not include the right to read file system attributes, extended file system attributes, or access and audit rules.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="readExtendedAttributes" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to open and copy extended file system attributes from a folder or file. For example, this value specifies the right to view author and content information. This does not include the right to read data, file system attributes, or access and audit rules.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="readPermissions" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to open and copy access and audit rules from a folder or file. This does not include the right to read data, file system attributes, and extended file system attributes.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="synchronize" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies whether the application can wait for a file handle to synchronize with the completion of an I/O operation.
+
+          The Synchronize value is automatically set when allowing access, and automatically excluded when denying access.
+
+          The right to create a file or folder requires this value. Note that if you do not explicitly set this value when creating a file, the value will be set automatically for you.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="takeOwnership" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to change the owner of a folder or file. Note that owners of a resource have full access to that resource.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="traverse" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to list the contents of a folder and to run applications contained within that folder.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="write" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to create folders and files, and to add or remove data from files. This right includes the WriteData right, AppendData right, WriteExtendedAttributes right, and WriteAttributes right.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="writeAttributes" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to open and write file system attributes to a folder or file. This does not include the ability to write data, extended attributes, or access and audit rules.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="writeData" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to open and write to a file or folder. This does not include the right to open and write file system attributes, extended file system attributes, or access and audit rules.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+    <xs:attribute name="writeExtendedAttributes" default="false" type="xs:boolean" >
+      <xs:annotation>
+        <xs:documentation>
+          Specifies the right to open and write extended file system attributes to a folder or file. This does not include the ability to write data, attributes, or access and audit rules.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:complexType name="certificatePermission">
+    <xs:attribute name="username" use="required" />
+    <xs:attribute name="read" default="true" type="xs:boolean" />
+    <xs:attribute name="fullControl" default="true" type="xs:boolean" />
+  </xs:complexType>
+
+  <xs:simpleType name="storeLocation">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CurrentUser" />
+      <xs:enumeration value="LocalMachine" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="certificateStore">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="TrustedPublisher" />
+      <xs:enumeration value="ClientAuthIssuer" />
+      <xs:enumeration value="Root" />
+      <xs:enumeration value="TrustedDevices" />
+      <xs:enumeration value="WebHosting" />
+      <xs:enumeration value="CA" />
+      <xs:enumeration value="REQUEST" />
+      <xs:enumeration value="AuthRoot" />
+      <xs:enumeration value="TrustedPeople" />
+      <xs:enumeration value="My" />
+      <xs:enumeration value="SmartCardRoot" />
+      <xs:enumeration value="Trust" />
+      <xs:enumeration value="Disallowed" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="site">
+    <xs:all>
+      <xs:element name="bindings" type="bindings" minOccurs="0" maxOccurs="1" />
+      <xs:element name="appPool" type="appPool" minOccurs="0" maxOccurs="1" />
+      <xs:element name="applications" type="applications" minOccurs="0" maxOccurs="1">
+        <xs:unique name="UniqueApplicationAlias">
+          <xs:selector xpath="application" />
+          <xs:field xpath="@alias" />
+        </xs:unique>
+        <xs:unique name="UniqueApplicationPhysicalPath">
+          <xs:selector xpath="application" />
+          <xs:field xpath="@physicalPath" />
+        </xs:unique>
+      </xs:element>
+      <xs:element name="virtualDirectories" type="virtualDirectories" minOccurs="0" maxOccurs="1" />
+    </xs:all>
+    <xs:attribute name="path" default="c:\inetpub\wwwroot" />
+    <xs:attribute name="name" default="Container" />
+    <xs:attribute name="containerOnly" default="false" type="xs:boolean" />
+  </xs:complexType>
+
+  <xs:complexType name="virtualDirectories">
+    <xs:sequence>
+      <xs:element name="virtualDirectory" type="virtualDirectory" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="applications">
+    <xs:sequence>
+      <xs:element name="application" type="application" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="virtualDirectory">
+    <xs:attribute name="alias" use="required" />
+    <xs:attribute name="physicalPath" default="."/>
+  </xs:complexType>
+
+  <xs:complexType name="application">
+    <xs:complexContent>
+      <xs:extension base="virtualDirectory">
+        <xs:sequence>
+          <xs:element name="appPool" type="appPool" minOccurs="0" maxOccurs="1" />
+          <xs:element name="applications" type="applications" minOccurs="0" maxOccurs="1" />
+          <xs:element name="virtualDirectories" type="virtualDirectories" minOccurs="0" maxOccurs="1" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="bindings">
+    <xs:sequence>
+      <xs:element name="binding" minOccurs="1" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:all>
+            <xs:element name="ssl" minOccurs="0">
+              <xs:complexType>
+                <xs:attribute name="thumbprint" />
+              </xs:complexType>
+            </xs:element>
+          </xs:all>
+          <xs:attribute name="protocol" type="protocol" use="required" />
+          <xs:attribute name="information" type="xs:string" use="required" />
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="protocol">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="http" />
+      <xs:enumeration value="https" />
+      <xs:enumeration value="net.tcp" />
+      <xs:enumeration value="net.pipe" />
+      <xs:enumeration value="net.msmq" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="appPool">
+    <xs:all>
+      <xs:element name="account" type="xs:string" minOccurs="0" maxOccurs="1" />
+      <xs:element name="password" type="xs:string" minOccurs="0" maxOccurs="1" />
+      <xs:element name="properties" type="appPoolProperties" minOccurs="0" maxOccurs="1" />
+    </xs:all>
+    <xs:attribute name="name" use="required" />
+    <xs:attribute name="frameworkVersion" type="frameworkVersion" default="v4.0" />
+    <xs:attribute name="enable32Bit" type="xs:boolean" default="false" />
+    <xs:attribute name="managedPipelineMode" type="managedPipelineMode" default="Integrated" />
+  </xs:complexType>
+
+  <xs:complexType name="appPoolProperties">
+    <xs:sequence>
+      <xs:element name="property" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute name="path" use="required" />
+          <xs:attribute name="value" use="required" />
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="frameworkVersion">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="v2.0" />
+      <xs:enumeration value="v4.0" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="managedPipelineMode">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="Classic" />
+      <xs:enumeration value="Integrated" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="service">
+    <xs:sequence>
+      <xs:element name="name" minOccurs="0" maxOccurs="1" type="xs:string" />
+      <xs:element name="displayName" minOccurs="0" maxOccurs="1" type="xs:string"  />
+      <xs:element name="account" minOccurs="0" maxOccurs="1" type="xs:string" />
+      <xs:element name="password" minOccurs="0" maxOccurs="1" type="xs:string" />
+      <xs:element name="serviceStartupType" type="serviceStartupType" default="delayed-auto" minOccurs="0" maxOccurs="1" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="serviceStartupType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="boot">
+        <xs:annotation>
+          <xs:documentation>Will start the service at the boot time</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="system" />
+      <xs:enumeration value="auto" />
+      <xs:enumeration value="demand" />
+      <xs:enumeration value="disabled" />
+      <xs:enumeration value="error" />
+      <xs:enumeration value="delayed-auto" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="WindowsService" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="service">
+        <xs:sequence>
+          <xs:element name="dependsOnServices" type="dependsOnServices" minOccurs="0" maxOccurs="1" />
+        </xs:sequence>
+        <xs:attribute name="path" type="xs:string" />
+        <xs:attribute name="arguments" type="xs:string" default="" />
+        <xs:attribute name="description" type="xs:string" default="" />
+        <xs:attribute name="serviceContainer" type="WindowsServiceContainer" default="none" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="dependsOnServices">
+    <xs:sequence>
+      <xs:element name="dependsOnService" minOccurs="0" maxOccurs="unbounded">
+        <xs:complexType>
+          <xs:attribute name="serviceName" use="required" />
+        </xs:complexType>
+      </xs:element>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="WindowsServiceContainer">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="none" />
+      <xs:enumeration value="srvany" />
+      <xs:enumeration value="nssm" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="TopshelfService" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="service">
+        <xs:attribute name="path" type="xs:string" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="JavaService" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="service">
+        <xs:attribute name="path" type="xs:string" />
+        <xs:attribute name="startMode" type="javaServiceMode" default="Java" />
+        <xs:attribute name="startClass" type="xs:string" />
+        <xs:attribute name="startMethod" type="xs:string" default="main" />
+        <xs:attribute name="startParams" type="xs:string" />
+        <xs:attribute name="stopMode" type="javaServiceMode" default="Java" />
+        <xs:attribute name="stopClass" type="xs:string" default="java.lang.System" />
+        <xs:attribute name="stopMethod" type="xs:string" default="exit" />
+        <xs:attribute name="stopParams" type="xs:string" />
+        <xs:attribute name="jvmOptions" type="xs:string" default="-Dapp.home=." />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:simpleType name="javaServiceMode">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="boot">
+        <xs:annotation>
+          <xs:documentation>The mode to use when starting or stoping java</xs:documentation>
+        </xs:annotation>
+      </xs:enumeration>
+      <xs:enumeration value="jvm" />
+      <xs:enumeration value="Java" />
+      <xs:enumeration value="exe" />
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="NServiceBus" >
+    <xs:complexContent mixed="false">
+      <xs:extension base="service">
+        <xs:sequence>
+          <xs:element name="profiles" type="NServiceBusProfiles" minOccurs="0" />
+          <xs:element name="queues" type="NServiceBusQueues" minOccurs="0" />
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="NServiceBusProfiles">
+    <xs:sequence>
+      <xs:element name="profile" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="NServiceBusQueues">
+    <xs:sequence>
+      <xs:element name="queue" minOccurs="1" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>

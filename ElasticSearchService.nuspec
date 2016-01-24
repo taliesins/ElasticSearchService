@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>ElasticSearchService</id>
+    <version>1.0.0.0</version>
+    <title>ElasticSearchService</title>
+    <authors>Taliesin Sisson</authors>
+    <owners>Talifun Ltd</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>ElasticSearchService</description>
+    <summary>ElasticSearchService</summary>
+    <language>en-GB</language>
+    <tags>elastic search</tags>
+    <dependencies>
+    </dependencies>
+  </metadata>
+  <files>
+  	<file src="**\*" exclude=".git\**\*;ElasticSearchService.nuspec;nuget\**\*;" target="" />
+  </files>  
+</package>

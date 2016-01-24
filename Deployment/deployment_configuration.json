@@ -1,0 +1,7 @@
+{
+	"ClusterName": "microservices",
+    "DataPath": "../../elasticsearch-data",
+    "LogPath": "../../Logs/elasticsearch",
+    "SearchSize": 20,
+    "SearchQueueSize":  10000
+}
