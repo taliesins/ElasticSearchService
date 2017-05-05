@@ -24,8 +24,8 @@ $config = @"
 # The primary way of configuring a node is via this file. This template lists
 # the most important settings you may want to configure for a production cluster.
 #
-# Please see the documentation for further information on configuration options:
-# <http://www.elastic.co/guide/en/elasticsearch/reference/current/setup-configuration.html>
+# Please consult the documentation for further information on configuration options:
+# https://www.elastic.co/guide/en/elasticsearch/reference/index.html
 #
 # ---------------------------------- Cluster -----------------------------------
 #
@@ -41,7 +41,7 @@ cluster.name: $($e.ClusterName)
 #
 # Add custom attributes to the node:
 #
-# node.rack: r1
+# node.attr.rack: r1
 #
 # ----------------------------------- Paths ------------------------------------
 #
@@ -57,10 +57,11 @@ path.logs: $($e.LogPath)
 #
 # Lock the memory on startup:
 #
-bootstrap.mlockall: true
+bootstrap.memory_lock: true
 #
-# Make sure that the `ES_HEAP_SIZE` environment variable is set to about half the memory
-# available on the system and that the owner of the process is allowed to use this limit.
+# Make sure that the heap size is set to about half the memory available
+# on the system and that the owner of the process is allowed to use this
+# limit
 #
 # Elasticsearch performs poorly when the system is swapping the memory.
 #
@@ -74,17 +75,7 @@ bootstrap.mlockall: true
 #
 # http.port: 9200
 #
-# For more information, see the documentation at:
-# <http://www.elastic.co/guide/en/elasticsearch/reference/current/modules-network.html>
-#
-# ---------------------------------- Gateway -----------------------------------
-#
-# Block initial recovery after a full cluster restart until N nodes are started:
-#
-# gateway.recover_after_nodes: 3
-#
-# For more information, see the documentation at:
-# <http://www.elastic.co/guide/en/elasticsearch/reference/current/modules-gateway.html>
+# For more information, consult the network module documentation.
 #
 # --------------------------------- Discovery ----------------------------------
 #
@@ -95,18 +86,22 @@ bootstrap.mlockall: true
 #
 # discovery.zen.ping.unicast.hosts: ["host1", "host2"]
 #
-# Prevent the "split brain" by configuring the majority of nodes (total number of nodes / 2 + 1):
+# Prevent the "split brain" by configuring the majority of nodes (total number of master-eligible nodes / 2 + 1):
 #
 # discovery.zen.minimum_master_nodes: 3
 #
-# For more information, see the documentation at:
-# <http://www.elastic.co/guide/en/elasticsearch/reference/current/modules-discovery.html>
+# For more information, consult the zen discovery module documentation.
+#
+# ---------------------------------- Gateway -----------------------------------
+#
+# Block initial recovery after a full cluster restart until N nodes are started:
+#
+# gateway.recover_after_nodes: 3
+#
+# For more information, consult the gateway module documentation.
 #
 # ---------------------------------- Various -----------------------------------
 #
-# Disable starting multiple nodes on a single system:
-#
-# node.max_local_storage_nodes: 1
 #
 # Require explicit names when deleting indices:
 #
@@ -122,96 +117,84 @@ threadpool.search.size: $($e.SearchSize)
 threadpool.search.queue_size: $($e.SearchQueueSize)
 "@
 
-$loggingConfileFilePath = "$rootPath\config\logging.yml"
+$loggingConfileFilePath = "$rootPath\config\log4j2.properties"
 
-$loggingConfig = @"
-# you can override this using by setting a system property, for example -Des.logger.level=DEBUG
-es.logger.level: INFO
-rootLogger: ${es.logger.level}, console, file
-logger:
-  # log action execution errors for easier debugging
-  action: DEBUG
+$loggingConfig = @'
+status = error
 
-  # deprecation logging, turn to DEBUG to see them
-  deprecation: INFO, deprecation_log_file
+# log action execution errors for easier debugging
+logger.action.name = org.elasticsearch.action
+logger.action.level = debug
 
-  # reduce the logging for aws, too much is logged under the default INFO
-  com.amazonaws: WARN
-  # aws will try to do some sketchy JMX stuff, but its not needed.
-  com.amazonaws.jmx.SdkMBeanRegistrySupport: ERROR
-  com.amazonaws.metrics.AwsSdkMetrics: ERROR
+appender.console.type = Console
+appender.console.name = console
+appender.console.layout.type = PatternLayout
+appender.console.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}] %marker%m%n
 
-  org.apache.http: INFO
+appender.rolling.type = RollingFile
+appender.rolling.name = rolling
+appender.rolling.fileName = ${sys:es.logs.base_path}${sys:file.separator}${sys:es.logs.cluster_name}.log
+appender.rolling.layout.type = PatternLayout
+appender.rolling.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}] %marker%.-10000m%n
+appender.rolling.filePattern = ${sys:es.logs.base_path}${sys:file.separator}${sys:es.logs.cluster_name}-%d{yyyy-MM-dd}.log
+appender.rolling.policies.type = Policies
+appender.rolling.policies.time.type = TimeBasedTriggeringPolicy
+appender.rolling.policies.time.interval = 1
+appender.rolling.policies.time.modulate = true
 
-  # gateway
-  #gateway: DEBUG
-  #index.gateway: DEBUG
+rootLogger.level = info
+rootLogger.appenderRef.console.ref = console
+rootLogger.appenderRef.rolling.ref = rolling
 
-  # peer shard recovery
-  #indices.recovery: DEBUG
+appender.deprecation_rolling.type = RollingFile
+appender.deprecation_rolling.name = deprecation_rolling
+appender.deprecation_rolling.fileName = ${sys:es.logs.base_path}${sys:file.separator}${sys:es.logs.cluster_name}_deprecation.log
+appender.deprecation_rolling.layout.type = PatternLayout
+appender.deprecation_rolling.layout.pattern = [%d{ISO8601}][%-5p][%-25c{1.}] %marker%.-10000m%n
+appender.deprecation_rolling.filePattern = ${sys:es.logs.base_path}${sys:file.separator}${sys:es.logs.cluster_name}_deprecation-%i.log.gz
+appender.deprecation_rolling.policies.type = Policies
+appender.deprecation_rolling.policies.size.type = SizeBasedTriggeringPolicy
+appender.deprecation_rolling.policies.size.size = 1GB
+appender.deprecation_rolling.strategy.type = DefaultRolloverStrategy
+appender.deprecation_rolling.strategy.max = 4
 
-  # discovery
-  #discovery: TRACE
+logger.deprecation.name = org.elasticsearch.deprecation
+logger.deprecation.level = warn
+logger.deprecation.appenderRef.deprecation_rolling.ref = deprecation_rolling
+logger.deprecation.additivity = false
 
-  index.search.slowlog: TRACE, index_search_slow_log_file
-  index.indexing.slowlog: TRACE, index_indexing_slow_log_file
+appender.index_search_slowlog_rolling.type = RollingFile
+appender.index_search_slowlog_rolling.name = index_search_slowlog_rolling
+appender.index_search_slowlog_rolling.fileName = ${sys:es.logs.base_path}${sys:file.separator}${sys:es.logs.cluster_name}_index_search_slowlog.log
+appender.index_search_slowlog_rolling.layout.type = PatternLayout
+appender.index_search_slowlog_rolling.layout.pattern = [%d{ISO8601}][%-5p][%-25c] %marker%.-10000m%n
+appender.index_search_slowlog_rolling.filePattern = ${sys:es.logs.base_path}${sys:file.separator}${sys:es.logs.cluster_name}_index_search_slowlog-%d{yyyy-MM-dd}.log
+appender.index_search_slowlog_rolling.policies.type = Policies
+appender.index_search_slowlog_rolling.policies.time.type = TimeBasedTriggeringPolicy
+appender.index_search_slowlog_rolling.policies.time.interval = 1
+appender.index_search_slowlog_rolling.policies.time.modulate = true
 
-additivity:
-  index.search.slowlog: false
-  index.indexing.slowlog: false
-  deprecation: false
+logger.index_search_slowlog_rolling.name = index.search.slowlog
+logger.index_search_slowlog_rolling.level = trace
+logger.index_search_slowlog_rolling.appenderRef.index_search_slowlog_rolling.ref = index_search_slowlog_rolling
+logger.index_search_slowlog_rolling.additivity = false
 
-appender:
-  console:
-    type: console
-    layout:
-      type: consolePattern
-      conversionPattern: "[%d{ISO8601}][%-5p][%-25c] %m%n"
+appender.index_indexing_slowlog_rolling.type = RollingFile
+appender.index_indexing_slowlog_rolling.name = index_indexing_slowlog_rolling
+appender.index_indexing_slowlog_rolling.fileName = ${sys:es.logs.base_path}${sys:file.separator}${sys:es.logs.cluster_name}_index_indexing_slowlog.log
+appender.index_indexing_slowlog_rolling.layout.type = PatternLayout
+appender.index_indexing_slowlog_rolling.layout.pattern = [%d{ISO8601}][%-5p][%-25c] %marker%.-10000m%n
+appender.index_indexing_slowlog_rolling.filePattern = ${sys:es.logs.base_path}${sys:file.separator}${sys:es.logs.cluster_name}_index_indexing_slowlog-%d{yyyy-MM-dd}.log
+appender.index_indexing_slowlog_rolling.policies.type = Policies
+appender.index_indexing_slowlog_rolling.policies.time.type = TimeBasedTriggeringPolicy
+appender.index_indexing_slowlog_rolling.policies.time.interval = 1
+appender.index_indexing_slowlog_rolling.policies.time.modulate = true
 
-  file:
-    type: dailyRollingFile
-    file: ${path.logs}/${cluster.name}.log
-    datePattern: "'.'yyyy-MM-dd"
-    layout:
-      type: pattern
-      conversionPattern: "[%d{ISO8601}][%-5p][%-25c] %.10000m%n"
-
-  # Use the following log4j-extras RollingFileAppender to enable gzip compression of log files. 
-  # For more information see https://logging.apache.org/log4j/extras/apidocs/org/apache/log4j/rolling/RollingFileAppender.html
-  #file:
-    #type: extrasRollingFile
-    #file: ${path.logs}/${cluster.name}.log
-    #rollingPolicy: timeBased
-    #rollingPolicy.FileNamePattern: ${path.logs}/${cluster.name}.log.%d{yyyy-MM-dd}.gz
-    #layout:
-      #type: pattern
-      #conversionPattern: "[%d{ISO8601}][%-5p][%-25c] %m%n"
-
-  deprecation_log_file:
-    type: dailyRollingFile
-    file: ${path.logs}/${cluster.name}_deprecation.log
-    datePattern: "'.'yyyy-MM-dd"
-    layout:
-      type: pattern
-      conversionPattern: "[%d{ISO8601}][%-5p][%-25c] %m%n"
-
-  index_search_slow_log_file:
-    type: dailyRollingFile
-    file: ${path.logs}/${cluster.name}_index_search_slowlog.log
-    datePattern: "'.'yyyy-MM-dd"
-    layout:
-      type: pattern
-      conversionPattern: "[%d{ISO8601}][%-5p][%-25c] %m%n"
-
-  index_indexing_slow_log_file:
-    type: dailyRollingFile
-    file: ${path.logs}/${cluster.name}_index_indexing_slowlog.log
-    datePattern: "'.'yyyy-MM-dd"
-    layout:
-      type: pattern
-      conversionPattern: "[%d{ISO8601}][%-5p][%-25c] %m%n"
-
-"@
+logger.index_indexing_slowlog.name = index.indexing.slowlog.index
+logger.index_indexing_slowlog.level = trace
+logger.index_indexing_slowlog.appenderRef.index_indexing_slowlog_rolling.ref = index_indexing_slowlog_rolling
+logger.index_indexing_slowlog.additivity = false
+'@
 
 Set-Content -Path $confileFilePath -Value $config
 Set-Content -Path $loggingConfileFilePath -Value $loggingConfig
