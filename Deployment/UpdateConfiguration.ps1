@@ -106,15 +106,10 @@ bootstrap.memory_lock: true
 # Require explicit names when deleting indices:
 #
 # action.destructive_requires_name: true
-http.jsonp.enable: true
-marvel.agent.enabled: false
-http.cors.allow-origin: "/.*/"
-http.cors.enabled: true
-
-# Search pool
-threadpool.search.type: fixed
-threadpool.search.size: $($e.SearchSize)
-threadpool.search.queue_size: $($e.SearchQueueSize)
+http.cors.allow-origin: "$($e.CorsOrigin)"
+http.cors.enabled: $($e.CorsEnabled)
+thread_pool.search.size: $($e.SearchSize)
+thread_pool.search.queue_size: $($e.SearchQueueSize)
 "@
 
 $loggingConfileFilePath = "$rootPath\config\log4j2.properties"

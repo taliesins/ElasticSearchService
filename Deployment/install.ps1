@@ -22,6 +22,19 @@ Install-All `
 	-environmentConfigurationFilePath $environmentConfigurationFilePath `
 	-productConfigurationFilePath $productConfigurationFilePath
 
+$pluginsPath = Join-Path $rootPath "plugins"
+if (!(Test-Path $pluginsPath)){
+	mkdir $pluginsPath
+}
+	
+$elasticsearchPluginPath = Join-Path $rootPath 'bin\elasticsearch-plugin.bat'
+$e.PlugIns.Split(",") | %{$_.Trim()} | %{ 
+	$pluginName = $_
+	if ($pluginName) {
+		&$elasticsearchPluginPath install --batch $pluginName
+	}
+}
+
 # Run post install configuration
 $updateConfigurationPostInstall = Join-Path $scriptPath "UpdateConfigurationPostInstall.ps1"
 if(Test-Path $updateConfigurationPostInstall) {

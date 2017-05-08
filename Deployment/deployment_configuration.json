@@ -3,5 +3,8 @@
     "DataPath": "../../elasticsearch-data",
     "LogPath": "../../Logs/elasticsearch",
     "SearchSize": 20,
-    "SearchQueueSize":  10000
+    "SearchQueueSize":  10000,
+	"CorsEnabled": true,
+	"CorsOrigin": "/.*/", 
+	"PlugIns": "ingest-attachment,ingest-geoip,ingest-user-agent,x-pack,mapper-size,mapper-murmur3,store-smb"
 }
