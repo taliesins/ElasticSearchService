@@ -106,7 +106,7 @@ bootstrap.memory_lock: true
 # Require explicit names when deleting indices:
 #
 # action.destructive_requires_name: true
-http.cors.allow-origin: "$($e.CorsOrigin)"
+http.cors.allow-origin: "$($e.CorsOrigin.ToString().ToLower())"
 http.cors.enabled: $($e.CorsEnabled)
 thread_pool.search.size: $($e.SearchSize)
 thread_pool.search.queue_size: $($e.SearchQueueSize)
